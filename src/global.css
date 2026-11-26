@@ -1,0 +1,351 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Plain CSS for what NativeWind can't express: env(), position: fixed/sticky, viewport units.
+  Only web files use these classes.
+*/
+
+/* `viewport-fit=cover` lets the page reach under the notch and home indicator. UI pays the inset back. */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-x {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Public header sticks to the top while the document scrolls. z-index = LAYERS.header. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Hero sized from the small viewport so it doesn't jump while the toolbars collapse. */
+.hero-min {
+  min-height: 70vh;
+  min-height: 70svh;
+}
+@media (min-width: 768px) {
+  .hero-min {
+    min-height: 0;
+  }
+}
+
+/* Leaves room for the sticky header when a link scrolls to a section. */
+.anchor-section {
+  scroll-margin-top: 80px;
+}
+
+/*
+  Sticky bottom action bar on phones (Join / Sign up). z-index = LAYERS.tabBar. Solid cream so Safari's
+  bottom toolbar tints to the page; padded so it clears the home indicator and Instagram's toolbar.
+*/
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Members and admin: app shell. Header fixed, content scrolls inside, sized to the dynamic viewport. */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* 16:9 video frame for lessons. */
+.video-frame {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Editorial redesign ---------- */
+
+/* Framed full-bleed video hero. svh so it doesn't jump while the toolbars collapse. */
+.hero-stage {
+  position: relative;
+  overflow: hidden;
+  height: 86vh;
+  height: 86svh;
+  min-height: 560px;
+  max-height: 900px;
+}
+@media (min-width: 768px) {
+  .hero-stage {
+    height: 82vh;
+    height: 82svh;
+    min-height: 620px;
+  }
+}
+
+/* Scrim so white type reads on any frame of the video. */
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(20, 18, 15, 0.86) 0%, rgba(20, 18, 15, 0.35) 45%, rgba(20, 18, 15, 0.1) 70%, rgba(20, 18, 15, 0.35) 100%);
+}
+
+/* Frosted chip / secondary button on video. */
+.glass {
+  background: rgba(251, 247, 240, 0.14);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* Lesson-title ticker under the hero. Two copies of the track scroll by half their width. */
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+/* Gentle rise-in for sections as they enter (web). Off under Reduce Motion. */
+.reveal {
+  animation: reveal 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { animation: none; }
+}
+
+/* Paper grain on the dark CTA band, so it doesn't read as a flat block. */
+.grain {
+  background-image: radial-gradient(rgba(251, 247, 240, 0.06) 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+
+/* Link-in-bio page: the video stays put behind the links while they scroll. */
+.links-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+.links-page {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ---------- Lesson video player (web) ---------- */
+/* Custom controls: no browser menu, so no Download item. Brand colors, 44px targets. */
+.vp {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #14120f;
+  border-radius: 24px;
+  overflow: hidden;
+  outline: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.vp:focus-visible { box-shadow: 0 0 0 3px #e3a23b; }
+.vp:fullscreen { border-radius: 0; aspect-ratio: auto; }
+.vp video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #14120f;
+}
+.vp[data-idle='true'] { cursor: none; }
+
+.vp-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.vp-bigplay {
+  pointer-events: auto;
+  width: 84px;
+  height: 84px;
+  border-radius: 999px;
+  border: 0;
+  background: #e3a23b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  transition: transform 160ms ease;
+}
+.vp-bigplay:hover { transform: scale(1.06); }
+.vp-bigplay:active { transform: scale(0.97); }
+@media (max-width: 640px) {
+  .vp-bigplay { width: 64px; height: 64px; }
+}
+.vp-spinner {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 3px solid rgba(251, 247, 240, 0.2);
+  border-top-color: #b5462a;
+  border-right-color: #e3a23b;
+  animation: vp-spin 0.9s linear infinite;
+}
+@keyframes vp-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .vp-spinner { animation-duration: 2.4s; }
+}
+
+.vp-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 36px 14px 8px;
+  background: linear-gradient(to top, rgba(20, 18, 15, 0.88), rgba(20, 18, 15, 0));
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+.vp[data-idle='true'] .vp-bar { opacity: 0; transform: translateY(8px); pointer-events: none; }
+.vp-row { display: flex; align-items: center; gap: 2px; }
+.vp-spacer { flex: 1; }
+.vp-btn {
+  min-width: 44px;
+  height: 44px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #fbf7f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  font: 700 14px/1 'DMSans_700Bold', system-ui, sans-serif;
+}
+.vp-btn:hover { background: rgba(251, 247, 240, 0.12); }
+.vp-btn:focus-visible { outline: 2px solid #e3a23b; outline-offset: 1px; }
+.vp-time {
+  color: rgba(251, 247, 240, 0.85);
+  font: 400 13px/1 'DMSans_400Regular', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+/* Scrubber: played (tomato) over buffered (cream 35%) over track (cream 18%). */
+.vp-seek {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  margin: 0 0 2px;
+  background: transparent;
+  cursor: pointer;
+  --played: 0%;
+  --buffered: 0%;
+}
+.vp-seek::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #b5462a var(--played), rgba(251, 247, 240, 0.35) var(--played), rgba(251, 247, 240, 0.35) var(--buffered), rgba(251, 247, 240, 0.18) var(--buffered));
+  transition: height 120ms ease;
+}
+.vp-seek::-moz-range-track {
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #b5462a var(--played), rgba(251, 247, 240, 0.35) var(--played), rgba(251, 247, 240, 0.35) var(--buffered), rgba(251, 247, 240, 0.18) var(--buffered));
+}
+.vp-seek:hover::-webkit-slider-runnable-track { height: 6px; }
+.vp-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border-radius: 999px;
+  background: #fbf7f0;
+  border: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+.vp-seek:hover::-webkit-slider-thumb { margin-top: -4px; }
+.vp-seek::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #fbf7f0;
+  border: 0;
+}
+.vp-seek:focus-visible { outline: 2px solid #e3a23b; outline-offset: 2px; border-radius: 6px; }
+
+/* Speed menu pops above its button. */
+.vp-menu-wrap { position: relative; }
+.vp-menu {
+  position: absolute;
+  right: 0;
+  bottom: 52px;
+  min-width: 120px;
+  padding: 6px;
+  border-radius: 16px;
+  background: rgba(34, 32, 28, 0.96);
+  border: 1px solid rgba(251, 247, 240, 0.12);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+.vp-menu .vp-btn { justify-content: space-between; width: 100%; border-radius: 10px; }
+.vp-menu .vp-btn[aria-checked='true'] { color: #e3a23b; }
+
+/* "Picking up at 3:12 · Start over" */
+.vp-toast {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 4px 4px 14px;
+  border-radius: 999px;
+  background: rgba(34, 32, 28, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fbf7f0;
+  font: 400 13px/1 'DMSans_400Regular', system-ui, sans-serif;
+  animation: reveal 300ms ease both;
+}
+.vp-toast .vp-btn { height: 36px; min-width: 0; padding: 0 12px; color: #e3a23b; font-size: 13px; }
+@media (max-width: 640px) {
+  .vp-bar { padding: 28px 6px 2px; }
+  .vp-hide-sm { display: none; }
+  .vp-toast { top: 8px; left: 8px; font-size: 12px; padding-left: 12px; }
+  .vp-toast .vp-btn { height: 32px; font-size: 12px; }
+}
